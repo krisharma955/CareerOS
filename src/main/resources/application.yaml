@@ -51,8 +51,10 @@ logging:
 server:
   port: ${PORT:8080}
 
-minio:
-  url: ${MINIO_ENDPOINT}
-  access-key: ${MINIO_ACCESS_KEY}
-  secret-key: ${MINIO_SECRET_KEY}
-  bucket-name: ${MINIO_BUCKET_NAME}
+r2:
+  endpoint: ${R2_ENDPOINT}
+  access-key-id: ${R2_ACCESS_KEY_ID}
+  secret-access-key: ${R2_SECRET_ACCESS_KEY}
+  bucket-name: ${R2_BUCKET_NAME}
+  region: ${R2_REGION:us-east-1}
+  presign-duration-minutes: ${R2_PRESIGN_DURATION:10}

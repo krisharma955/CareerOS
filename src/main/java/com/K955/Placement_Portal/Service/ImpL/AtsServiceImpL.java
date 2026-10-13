@@ -11,7 +11,7 @@ import com.K955.Placement_Portal.Repository.AtsReportSpecification;
 import com.K955.Placement_Portal.Repository.ResumeRepository;
 import com.K955.Placement_Portal.Repository.StudentRepository;
 import com.K955.Placement_Portal.Service.AtsService;
-import com.K955.Placement_Portal.Util.MinioFileStorageUtil;
+import com.K955.Placement_Portal.Util.S3FileStorageUtil;
 import com.K955.Placement_Portal.Util.PdfTextExtractor;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
@@ -35,7 +35,7 @@ public class AtsServiceImpL implements AtsService {
     private final ChatClient chatClient;
     private final ObjectMapper objectMapper;
     private final AtsReportMapper atsReportMapper;
-    private final MinioFileStorageUtil minioFileStorageUtil;
+    private final S3FileStorageUtil s3FileStorageUtil;
 
     @Override
     public AtsReportResponse analyzeResume(Long userId) throws IOException {
@@ -46,7 +46,7 @@ public class AtsServiceImpL implements AtsService {
                 .orElseThrow(() -> new ResourceNotFoundException("Resume", student.getId().toString()));
 
         String resumeText;
-        try (InputStream resumeStream = minioFileStorageUtil.getFileStream(resume.getFilePath())) {
+        try (InputStream resumeStream = s3FileStorageUtil.getFileStream(resume.getFilePath())) {
             resumeText = pdfTextExtractor.extractText(resumeStream);
         } catch (Exception e) {
             throw new IOException("Failed to read resume from storage: " + e.getMessage(), e);

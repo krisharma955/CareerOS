@@ -9,9 +9,8 @@ import com.K955.Placement_Portal.Mapper.ResumeMapper;
 import com.K955.Placement_Portal.Repository.ResumeRepository;
 import com.K955.Placement_Portal.Repository.StudentRepository;
 import com.K955.Placement_Portal.Service.ResumeService;
-import com.K955.Placement_Portal.Util.MinioFileStorageUtil;
+import com.K955.Placement_Portal.Util.S3FileStorageUtil;
 import lombok.RequiredArgsConstructor;
-import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -25,7 +24,7 @@ public class ResumeServiceImpL implements ResumeService {
 
     private final ResumeRepository resumeRepository;
     private final StudentRepository studentRepository;
-    private final MinioFileStorageUtil minioFileStorageUtil;
+    private final S3FileStorageUtil s3FileStorageUtil;
     private final ResumeMapper resumeMapper;
 
     @Override
@@ -45,10 +44,10 @@ public class ResumeServiceImpL implements ResumeService {
         Optional<Resume> existingResume = resumeRepository.findByStudentUserId(userId);
 
         if(existingResume.isPresent()) {
-            minioFileStorageUtil.deleteFile(existingResume.get().getFilePath());
+            s3FileStorageUtil.deleteFile(existingResume.get().getFilePath());
 
             Resume resume = existingResume.get();
-            String filePath = minioFileStorageUtil.saveFile(file, userId);
+            String filePath = s3FileStorageUtil.saveFile(file, userId);
             resume.setFileName(file.getOriginalFilename());
             resume.setFilePath(filePath);
             resume.setFileType(contentType);
@@ -58,7 +57,7 @@ public class ResumeServiceImpL implements ResumeService {
             return resumeMapper.toResumeResponse(saved);
         }
         else {
-            String filePath = minioFileStorageUtil.saveFile(file, userId);
+            String filePath = s3FileStorageUtil.saveFile(file, userId);
 
             Resume resume = Resume.builder()
                     .student(student)
@@ -87,6 +86,6 @@ public class ResumeServiceImpL implements ResumeService {
         Resume resume = resumeRepository.findByStudentUserId(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("Resume", userId.toString()));
 
-        return minioFileStorageUtil.getPresignedDownloadUrl(resume.getFilePath());
+        return s3FileStorageUtil.getPresignedDownloadUrl(resume.getFilePath());
     }
 }
